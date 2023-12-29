@@ -1,6 +1,7 @@
 plugins {
     id 'java'
     id 'application'
+    id 'com.google.protobuf' version '0.9.4' // use the latest version
 }
 
 group 'com.ter'
@@ -12,10 +13,37 @@ repositories {
     mavenCentral()  // Use Maven Central for resolving dependencies
 }
 
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.25.1'
+    }
+    generateProtoTasks {
+        ofSourceSet('main').forEach {
+            it.builtins {
+                java {
+                    // Optional configuration
+                }
+            }
+        }
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs 'build/generated/source/proto/main/java'
+        }
+    }
+}
+
 dependencies {
     // Specify your project dependencies here
     // For example, if you need a third-party library for the noise function:
     // implementation 'group:name:version'
+    
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    implementation group: 'com.google.protobuf', name: 'protobuf-java', version: '3.25.1'
+
 
     // Test dependencies (optional)
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
