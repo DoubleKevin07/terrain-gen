@@ -15,6 +15,22 @@ public class Terrain {
         generateTerrain(seed, scale);
     }
 
+    public Cell getCell(int x, int y) {
+        return terrainData[x][y];
+    }
+
+    public void setCell(int x, int y, Cell newCell) {
+        terrainData[x][y] = newCell;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     private void generateTerrain(int seed, double scale) {
         Noise noiseGenerator = new Noise(width, height, seed, scale);
         for (int x = 0; x < width; x++) {
@@ -22,15 +38,11 @@ public class Terrain {
                 float noiseValue = noiseGenerator.getNormalizedValue(x, y);
                 Cell cell = Cell.newBuilder()
                         .setHeight(noiseValue)
-                        .setWater(0.0f) // default value
-                        .setSediment(0.0f) // default value
+                        .setWater(0.0f)
+                        .setSediment(0.0f)
                         .build();
                 terrainData[x][y] = cell;
             }
         }
-    }
-
-    public Cell getCell(int x, int y) {
-        return terrainData[x][y];
     }
 }
