@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+group 'com.ter'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8  // Set compatibility to your preferred Java version
+
+repositories {
+    mavenCentral()  // Use Maven Central for resolving dependencies
+}
+
+dependencies {
+    // Specify your project dependencies here
+    // For example, if you need a third-party library for the noise function:
+    // implementation 'group:name:version'
+
+    // Test dependencies (optional)
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+application {
+    // Replace with your main class
+    mainClass = 'com.ter.NoiseDisplay'
+}
+
+test {
+    useJUnitPlatform()
+}
