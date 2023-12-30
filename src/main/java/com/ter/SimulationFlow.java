@@ -21,77 +21,33 @@ public class SimulationFlow implements Simulation {
     }
 
     public float calculateDeltaHLeft(int x, int y) {
-        if (x == 0) {
-            // Assuming there's no flow beyond the left boundary of the terrain
-            return 0;
-        }
-
-        // Get the terrain and water height for the current cell
-        float bCurrent = terrain.getCell(x, y).getHeight();
-        float dCurrent = terrain.getCell(x, y).getWater();
-
-        // Get the terrain and water height for the cell to the left
-        float bLeft = terrain.getCell(x - 1, y).getHeight();
-        float dLeft = terrain.getCell(x - 1, y).getWater();
-
-        // Calculate the height difference
-        float deltaHLeft = (bCurrent + dCurrent) - (bLeft + dLeft);
-
-        return deltaHLeft;
+        return calculateDeltaH(x, y, x - 1, y);
     }
 
-    // Calculate the change in height to the right of the current cell
     public float calculateDeltaHRight(int x, int y) {
-        if (x == terrain.getWidth() - 1) {
-            // Assuming there's no flow beyond the right boundary of the terrain
-            return 0;
-        }
-
-        float bCurrent = terrain.getCell(x, y).getHeight();
-        float dCurrent = terrain.getCell(x, y).getWater();
-
-        float bRight = terrain.getCell(x + 1, y).getHeight();
-        float dRight = terrain.getCell(x + 1, y).getWater();
-
-        float deltaHRight = (bCurrent + dCurrent) - (bRight + dRight);
-
-        return deltaHRight;
+        return calculateDeltaH(x, y, x + 1, y);
     }
 
-    // Calculate the change in height below the current cell
     public float calculateDeltaHBottom(int x, int y) {
-        if (y == terrain.getHeight() - 1) {
-            // Assuming there's no flow beyond the bottom boundary of the terrain
-            return 0;
-        }
-
-        float bCurrent = terrain.getCell(x, y).getHeight();
-        float dCurrent = terrain.getCell(x, y).getWater();
-
-        float bBottom = terrain.getCell(x, y + 1).getHeight();
-        float dBottom = terrain.getCell(x, y + 1).getWater();
-
-        float deltaHBottom = (bCurrent + dCurrent) - (bBottom + dBottom);
-
-        return deltaHBottom;
+        return calculateDeltaH(x, y, x, y + 1);
     }
 
-    // Calculate the change in height above the current cell
     public float calculateDeltaHTop(int x, int y) {
-        if (y == 0) {
-            // Assuming there's no flow beyond the top boundary of the terrain
-            return 0;
+        return calculateDeltaH(x, y, x, y - 1);
+    }
+
+    private float calculateDeltaH(int x1, int y1, int x2, int y2) {
+        // Check boundary conditions
+        if (x2 < 0 || x2 >= terrain.getWidth() || y2 < 0 || y2 >= terrain.getHeight()) {
+            return 0; // No flow beyond the boundaries of the terrain
         }
 
-        float bCurrent = terrain.getCell(x, y).getHeight();
-        float dCurrent = terrain.getCell(x, y).getWater();
+        float bCurrent = terrain.getCell(x1, y1).getHeight();
+        float dCurrent = terrain.getCell(x1, y1).getWater();
+        float bNeighbor = terrain.getCell(x2, y2).getHeight();
+        float dNeighbor = terrain.getCell(x2, y2).getWater();
 
-        float bTop = terrain.getCell(x, y - 1).getHeight();
-        float dTop = terrain.getCell(x, y - 1).getWater();
-
-        float deltaHTop = (bCurrent + dCurrent) - (bTop + dTop);
-
-        return deltaHTop;
+        return (bCurrent + dCurrent) - (bNeighbor + dNeighbor);
     }
 
     private float[][][] calculateOutflows(float deltaTime) {

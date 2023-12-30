@@ -22,6 +22,11 @@ class SimulationFlowTest {
                 // Let's assume all cells have the same terrain height but vary in water height
                 terrain.setCell(x, y, Cell.newBuilder().setHeight(10).setWater(Math.max(x, y)).build());
                 // Increase water height as we go diagonally down to the right.
+                /*
+                 * 0 1 2
+                 * 1 1 2
+                 * 2 2 2
+                 */
             }
         }
     }
@@ -29,11 +34,11 @@ class SimulationFlowTest {
     @Test
     void testCalculateDeltaHLeft() {
         // Middle right cell should have a difference in water height of 1 compared to
-        // its right neighbor
+        // its left neighbor
         float deltaHLeft = simulationFlow.calculateDeltaHLeft(2, 1);
         assertEquals(1, deltaHLeft, "The deltaHLeft should be 1");
 
-        // Right edge cell should have a deltaHRight of 0 since it has no right neighbor
+        // Left edge cell should have a deltaHRight of 0 since it has no right neighbor
         deltaHLeft = simulationFlow.calculateDeltaHLeft(0, 1);
         assertEquals(0, deltaHLeft, "The deltaHLeft at the left edge should be 0");
     }
