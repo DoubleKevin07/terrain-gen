@@ -1,5 +1,7 @@
 package com.ter;
 
+import java.util.Arrays;
+
 import com.ter.proto.Cell;
 
 public class Terrain {
@@ -40,6 +42,12 @@ public class Terrain {
                         .setHeight(noiseValue)
                         .setWater(0.0f)
                         .setSediment(0.0f)
+                        .addAllFlux(
+                                Arrays.asList(
+                                        /* left= */0.0f,
+                                        /* right= */ 0.0f,
+                                        /* top= */ 0.0f,
+                                        /* bottom= */ 0.0f))
                         .build();
                 terrainData[x][y] = cell;
             }

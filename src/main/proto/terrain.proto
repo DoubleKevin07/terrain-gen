@@ -4,8 +4,16 @@ option java_multiple_files = true;
 option java_package = "com.ter.proto";
 option java_outer_classname = "TerrainProto";
 
+enum FluxIndex {
+  LEFT = 0;
+  RIGHT = 1;
+  TOP = 2;
+  BOTTOM = 3;
+}
+
 message Cell {
   float height = 1;
   float water = 2;
   float sediment = 3;
+  repeated float flux = 4; // [left, right, top, bottom]
 }

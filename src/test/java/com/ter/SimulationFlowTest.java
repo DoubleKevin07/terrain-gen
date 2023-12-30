@@ -5,6 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
+import java.util.List;
+
 class SimulationFlowTest {
     private Terrain terrain;
     private SimulationFlow simulationFlow;
@@ -20,7 +23,13 @@ class SimulationFlowTest {
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
                 // Let's assume all cells have the same terrain height but vary in water height
-                terrain.setCell(x, y, Cell.newBuilder().setHeight(10).setWater(Math.max(x, y)).build());
+                terrain.setCell(x, y, Cell.newBuilder().setHeight(10).setWater(Math.max(x, y)).addAllFlux(
+                        Arrays.asList(
+                                /* left= */0.0f,
+                                /* right= */ 0.0f,
+                                /* top= */ 0.0f,
+                                /* bottom= */ 0.0f))
+                        .build());
                 // Increase water height as we go diagonally down to the right.
                 /*
                  * 0 1 2
@@ -78,5 +87,63 @@ class SimulationFlowTest {
         // Top edge cell should have a deltaHTop of 0 since it has no top neighbor
         deltaHTop = simulationFlow.calculateDeltaHTop(1, 0);
         assertEquals(0, deltaHTop, "The deltaHTop at the top edge should be 0");
+    }
+
+    @Test
+    void testCalculateOutflowFluxMiddleLeft() {
+        // Test outflow flux from middle left cell.
+        List<Float> expectedOutput = Arrays.asList(0.0f, 0.0f, 9.81f, 0.0f); // Flow to lower cell, which is above.
+
+        List<Float> result = simulationFlow.calculateOutflowFlux(0, 1, 1.0f);
+
+        assertEquals(result, expectedOutput);
+    }
+
+    @Test
+    void testCalculateOutflowFluxMiddleRight() {
+        // Test outflow flux from middle right cell.
+        List<Float> expectedOutput = Arrays.asList(9.81f, 0.0f, 0.0f, 0.0f); // Flow to left cell.
+
+        List<Float> result = simulationFlow.calculateOutflowFlux(2, 1, 1.0f);
+
+        assertEquals(result, expectedOutput);
+    }
+
+    @Test
+    void testCalculateOutflowFluxMiddleBottom() {
+        // Test outflow flux from middle bottom cell.
+        List<Float> expectedOutput = Arrays.asList(0.0f, 0.0f, 9.81f, 0.0f);
+
+        List<Float> result = simulationFlow.calculateOutflowFlux(1, 2, 1.0f);
+
+        assertEquals(result, expectedOutput);
+    }
+
+    @Test
+    void testCalculateOutflowFluxMiddleTop() {
+        // Test outflow flux from middle top cell.
+        List<Float> expectedOutput = Arrays.asList(9.81f, 0.0f, 0.0f, 0.0f);
+
+        List<Float> result = simulationFlow.calculateOutflowFlux(1, 0, 1.0f);
+
+        assertEquals(result, expectedOutput);
+    }
+
+    @Test
+    void testCalculateOutflowFluxMiddle() {
+        // Test outflow flux from middle cell.
+        // This flux should be 0.
+        //
+        // Assumptions:
+        // - We only have outward flux when water is moving OUT OF the cell.
+        //
+        // - Since we are in the middle of the terrain, we have water flowing into the
+        // cell from the top and right. The cell to the left and above is at the same
+        // level, so there is no outward flux.
+        List<Float> expectedOutput = Arrays.asList(0.0f, 0.0f, 0.0f, 0.0f);
+
+        List<Float> result = simulationFlow.calculateOutflowFlux(1, 1, 1.0f);
+
+        assertEquals(result, expectedOutput);
     }
 }
