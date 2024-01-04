@@ -4,9 +4,9 @@ This is a library for generating realistic looking terrain heightmaps (and possi
 
 ## Installation
 
-1. Install JDK
-2. Install Gradle
-3. Install protoc
+1. Install [JDK](https://jdk.java.net/21/)
+2. Install [Gradle](https://gradle.org/releases/)
+3. Install [protoc 25.1](https://github.com/protocolbuffers/protobuf/releases/tag/v25.1)
 4. Download the [Java proto plugin v0.9.4](https://github.com/google/protobuf-gradle-plugin/releases/tag/v0.9.4) and install it for gradle. If you're on windows, this means run `gradlew.bat`.
 5. Clone this repository
 6. Run `gradle build`
