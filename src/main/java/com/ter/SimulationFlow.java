@@ -13,10 +13,12 @@ public class SimulationFlow implements Simulation {
 
     private Terrain terrain;
     private final float globalRateParameter; // K_r
+    private final float globalSedimentCapacity; // K_c
 
-    public SimulationFlow(Terrain terrain, float globalRateParameter) {
+    public SimulationFlow(Terrain terrain, float globalRateParameter, float globalSedimentCapacity) {
         this.terrain = terrain;
         this.globalRateParameter = globalRateParameter;
+        this.globalSedimentCapacity = globalSedimentCapacity;
     }
 
     @Override
@@ -108,5 +110,50 @@ public class SimulationFlow implements Simulation {
             return 1;
         }
         return Math.max(1, scale); // Equation [4].
+    }
+
+    public float calculateSedimentTransportCapacity(int x, int y) {
+        float Kc = globalSedimentCapacity;
+        List<Float> velocityVector = calculateVelocityVector(x, y);
+        double slopeAngle = calculateLocalTiltAngle(x, y);
+        float magnitudeOfVelocity = (float) Math.sqrt(Math.pow(velocityVector.get(0), 2) + Math.pow(velocityVector.get(1), 2));
+    
+        // Calculate sediment transport capacity
+        float sedimentTransportCapacity = Kc * (float) Math.sin(Math.toRadians(slopeAngle)) * magnitudeOfVelocity;
+        return sedimentTransportCapacity; // Equation [9].
+    }
+
+    public double calculateLocalTiltAngle(int x, int y) {
+        // Calculate the gradients in x and y directions
+        float dHeightDx = (calculateDeltaH(x, y, x + 1, y) - calculateDeltaH(x, y, x - 1, y)) / 2.0f;
+        float dHeightDy = (calculateDeltaH(x, y, x, y + 1) - calculateDeltaH(x, y, x, y - 1)) / 2.0f;
+
+        // Calculate the magnitude of the gradient vector (which is the slope)
+        float slope = (float) Math.sqrt(dHeightDx * dHeightDx + dHeightDy * dHeightDy);
+
+        // Calculate the angle of the slope in radians
+        float slopeAngle = (float) Math.atan(slope);
+
+        // Return the slope angle in degrees
+        return Math.toDegrees(slopeAngle); // Alpha
+    }
+
+    public List<Float> calculateVelocityVector(int x, int y) {
+        Cell cell = terrain.getCell(x, y);
+    
+        float leftFlux = cell.getFlux(FluxIndex.LEFT_VALUE);
+        float rightFlux = cell.getFlux(FluxIndex.RIGHT_VALUE);
+        float topFlux = cell.getFlux(FluxIndex.TOP_VALUE);
+        float bottomFlux = cell.getFlux(FluxIndex.BOTTOM_VALUE);
+
+        float leftNeighborRightFlux = x > 0 ? terrain.getCell(x - 1, y).getFlux(FluxIndex.RIGHT_VALUE) : 0;
+        float rightNeighborLeftFlux = x < terrain.getWidth() - 1 ? terrain.getCell(x + 1, y).getFlux(FluxIndex.LEFT_VALUE) : 0;
+        float topNeighborBottomFlux = y > 0 ? terrain.getCell(x, y - 1).getFlux(FluxIndex.BOTTOM_VALUE) : 0;
+        float bottomNeighborTopFlux = y < terrain.getHeight() - 1 ? terrain.getCell(x, y + 1).getFlux(FluxIndex.TOP_VALUE) : 0;
+
+        float deltaWx = 0.5f * (leftNeighborRightFlux - leftFlux + rightFlux - rightNeighborLeftFlux);
+        float deltaWy = 0.5f * (topNeighborBottomFlux - topFlux + bottomFlux - bottomNeighborTopFlux);
+
+        return Arrays.asList(deltaWx, deltaWy); // Equation [8].
     }
 }

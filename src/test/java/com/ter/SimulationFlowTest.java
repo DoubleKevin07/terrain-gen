@@ -17,7 +17,7 @@ class SimulationFlowTest {
         // Create a mock terrain with known values for height and water
         // For simplicity, let's assume terrain is 3x3
         terrain = new Terrain(3, 3, 1, 1);
-        simulationFlow = new SimulationFlow(terrain, 0.1f); // Assuming a global rate parameter Kr
+        simulationFlow = new SimulationFlow(terrain, 0.1f, 0.1f); // Assuming a global rate parameter Kr
 
         // Initialize the cells with known values
         for (int x = 0; x < 3; x++) {
@@ -145,5 +145,55 @@ class SimulationFlowTest {
         List<Float> result = simulationFlow.calculateOutflowFlux(1, 1, 1.0f);
 
         assertEquals(result, expectedOutput);
+    }
+
+    @Test
+    void testCalculateLocalTiltAngleMiddle() {
+        // TODO: Make this test more helpful.
+        double expectedAngle = 35.2643897;
+
+        double result = simulationFlow.calculateLocalTiltAngle(1, 1);
+        double diff = Math.abs(expectedAngle - result);
+
+        assertTrue(diff < 0.1, "Difference should be within 0.01.");
+    }
+
+    @Test
+    void testCalculateVelocityVectorIsZeroIfFluxAllZero() {
+        // By default, all cells have 0 flux.
+        List<Float> result = simulationFlow.calculateVelocityVector(1, 1);
+
+        assertEquals(result, Arrays.asList(0.0f, 0.0f));
+    }
+
+    @Test
+    void testCalculateVelocityVectorForNonzeroFlux() {
+        // Add flux going to the right and flux going down for the middle cell and neighbor cells.
+        terrain.setCell(1, 1, Cell.newBuilder().addAllFlux(
+                Arrays.asList(
+                        /* left= */ 0.0f,
+                        /* right= */ 10.0f,
+                        /* top= */ 0.0f,
+                        /* bottom= */ 10.0f))
+                .build()); // Middle cell
+        terrain.setCell(1, 0, Cell.newBuilder().addAllFlux(
+                Arrays.asList(
+                        /* left= */ 0.0f,
+                        /* right= */ 0.0f,
+                        /* top= */ 0.0f,
+                        /* bottom= */ 10.0f))
+                .build()); // Middle cell top neighbor
+        terrain.setCell(0, 1, Cell.newBuilder().addAllFlux(
+                Arrays.asList(
+                        /* left= */ 0.0f,
+                        /* right= */ 10.0f,
+                        /* top= */ 0.0f,
+                        /* bottom= */ 0.0f))
+                .build()); // Middle cell left neighbor
+        // (By default, other cells have 0 flux.)
+
+        List<Float> result = simulationFlow.calculateVelocityVector(1, 1);
+
+        assertEquals(result, Arrays.asList(10.0f, 10.0f));
     }
 }
